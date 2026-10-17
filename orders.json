@@ -1,0 +1,30 @@
+{
+  "A-1029": {
+    "customer_email": "jane@example.com",
+    "item": "Wireless Headphones",
+    "order_date": "2026-08-20",
+    "amount_usd": 120.00,
+    "status": "delivered"
+  },
+  "B-77": {
+    "customer_email": "sam@example.com",
+    "item": "Ceramic Mug Set",
+    "order_date": "2026-08-25",
+    "amount_usd": 25.00,
+    "status": "delivered"
+  },
+  "C-42": {
+    "customer_email": "alex@example.com",
+    "item": "Desk Lamp",
+    "order_date": "2026-05-10",
+    "amount_usd": 45.00,
+    "status": "delivered"
+  },
+  "D-501": {
+    "customer_email": "priya@example.com",
+    "item": "Leather Wallet",
+    "order_date": "2026-08-29",
+    "amount_usd": 60.00,
+    "status": "delivered"
+  }
+}

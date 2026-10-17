@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Support</title>
+    <link rel="stylesheet" href="/static/tokens.css">
+    <style>
+        body { 
+            font-family: var(--font-body); 
+            background: var(--color-paper-1); 
+            color: var(--color-ink-1); 
+            margin: 0; 
+            padding: var(--space-md);
+        }
+        h1 { text-align: center; }
+        .n5-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        #chat { 
+            height: 300px; 
+            overflow-y: auto; 
+            border-bottom: 1px solid var(--color-paper-2);
+            padding-bottom: var(--space-sm);
+        }
+        .controls {
+            display: flex;
+            gap: var(--space-xs);
+        }
+    </style>
+</head>
+<body>
+    <div class="n5-container">
+        <h1>Customer Support</h1>
+        <div id="chat"></div>
+        <div class="controls">
+            <input type="text" id="msg" class="input-field" placeholder="Message...">
+            <button class="btn" onclick="send()">Send</button>
+        </div>
+        <select id="mock-questions" onchange="document.getElementById('msg').value = this.value">
+            <option value="">-- Choose a mock question --</option>
+            <option value="what's your return window?">FAQ: return window</option>
+            <option value="do you ship internationally?">FAQ: shipping</option>
+            <option value="order A-1029 arrived broken, I want a refund">Refund: A-1029 (damaged)</option>
+            <option value="I want a refund for order C-42, I just changed my mind">Refund: C-42 (mind change)</option>
+            <option value="refund order Z-999 please">Refund: Z-999 (unknown)</option>
+        </select>
+    </div>
+
+    <script>
+        async function send() {
+            const message = document.getElementById('msg').value;
+            document.getElementById('chat').innerHTML += `<p><b>You:</b> ${message}</p>`;
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message})
+            });
+            const data = await response.json();
+            document.getElementById('chat').innerHTML += `<p><b>Agent:</b> ${data.response}</p>`;
+            
+            if (data.requires_approval) {
+                pollStatus(data.run_id);
+            }
+        }
+        
+        async function pollStatus(run_id) {
+            const interval = setInterval(async () => {
+                const response = await fetch(`/status/${run_id}`);
+                const data = await response.json();
+                if (data.status !== 'pending') {
+                    clearInterval(interval);
+                    document.getElementById('chat').innerHTML += `<p><b>Agent:</b> Your refund request for ${data.order_id} has been ${data.status}. Reason: ${data.reason}.</p>`;
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

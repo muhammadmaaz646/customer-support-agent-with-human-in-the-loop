@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/tokens.css">
+    <style>
+        body { font-family: var(--font-body); background: var(--color-paper-1); color: var(--color-ink-1); padding: var(--space-md); }
+        .n5-container {
+            padding: var(--space-md);
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: var(--space-md); }
+        th, td { border-bottom: 1px solid var(--color-paper-2); padding: var(--space-sm); text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="n5-container">
+        <h1>Pending Refunds</h1>
+        <table>
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Justification</th><th>Action</th></tr></thead>
+            <tbody id="refund-list"></tbody>
+        </table>
+    </div>
+
+
+    <script>
+        async function loadRefunds() {
+            const response = await fetch('/admin/refunds');
+            const refunds = await response.json();
+            const list = document.getElementById('refund-list');
+            list.innerHTML = '';
+            refunds.forEach(r => {
+                list.innerHTML += `<tr>
+                    <td>${r.order_id}</td>
+                    <td>${r.order.customer_email}</td>
+                    <td>$${r.amount_usd}</td>
+                    <td>${r.justification}</td>
+                    <td>
+                        <button class="btn" onclick="process('${r.run_id}', 'approve')">Approve</button>
+                        <button class="btn" onclick="process('${r.run_id}', 'deny')">Deny</button>
+                    </td>
+                </tr>`;
+            });
+        }
+        
+        async function process(run_id, action) {
+            const reason = prompt("Reason:");
+            await fetch(`/admin/refunds/${run_id}/${action}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({reason})
+            });
+            loadRefunds();
+        }
+        
+        loadRefunds();
+    </script>
+</body>
+</html>
